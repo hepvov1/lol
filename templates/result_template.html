@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Результат OSINT</title>
+</head>
+<body style="font-family: Arial; padding: 20px; background: #121212; color: #eee;">
+    <h1>OSINT Station — Результат запроса</h1>
+
+    {% if data.type == 'username' %}
+        <h2>Никнейм</h2>
+        <ul>
+        {% for site, link in data.results.items() %}
+            <li>{{ site }}: {% if link %}<a href="{{ link }}">{{ link }}</a>{% else %}❌{% endif %}</li>
+        {% endfor %}
+        </ul>
+
+    {% elif data.type == 'email' %}
+        <h2>Email</h2>
+        <p>Email: {{ data.email }}</p>
+        <p>Валиден: {{ "Да" if data.valid else "Нет" }}</p>
+
+    {% elif data.type == 'ip' %}
+        <h2>IP-адрес</h2>
+        <ul>
+        {% for key, val in data.info.items() %}
+            <li>{{ key }}: {{ val }}</li>
+        {% endfor %}
+        </ul>
+
+    {% elif data.type == 'domain' %}
+        <h2>Домен</h2>
+        <p><strong>DNS:</strong> {{ data.dns }}</p>
+        <pre style="white-space: pre-wrap; background: #1d1d1d; padding: 10px;">{{ data.whois }}</pre>
+
+    {% elif data.type == 'photo' %}
+        <h2>Фото-анализ</h2>
+        <img src="uploads/{{ data.filename }}" style="max-width: 300px;">
+        {% if data.coords %}
+            <p>Координаты: {{ data.coords[0] }}, {{ data.coords[1] }}</p>
+            <a href="https://yandex.ru/maps/?ll={{ data.coords[1] }},{{ data.coords[0] }}&z=18">Открыть в Яндекс.Картах</a>
+        {% endif %}
+        <h3>EXIF-данные:</h3>
+        <ul>
+        {% for key, val in data.exif.items() %}
+            <li>{{ key }}: {{ val }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>
