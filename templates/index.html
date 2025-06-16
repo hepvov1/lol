@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>@code1lol</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        form, .result {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px auto;
+            width: 80%;
+            max-width: 600px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 8px;
+        }
+        input[type="text"], input[type="file"] {
+            width: 60%;
+        }
+        button {
+            background-color: #03a9f4;
+            color: white;
+            cursor: pointer;
+        }
+        a {
+            color: #4caf50;
+        }
+        img {
+            max-width: 300px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🕵️ tgk - @code1lol</h1>
+
+    <form method="post">
+        <input type="hidden" name="type" value="username">
+        <input type="text" name="query" placeholder="Никнейм" required>
+        <button type="submit">Проверить</button>
+    </form>
+
+    <form method="post">
+        <input type="hidden" name="type" value="email">
+        <input type="text" name="query" placeholder="Email" required>
+        <button type="submit">Проверить</button>
+    </form>
+
+    <form method="post">
+        <input type="hidden" name="type" value="ip">
+        <input type="text" name="query" placeholder="IP-адрес" required>
+        <button type="submit">Инфо</button>
+    </form>
+
+    <form method="post">
+        <input type="hidden" name="type" value="domain">
+        <input type="text" name="query" placeholder="Домен" required>
+        <button type="submit">WHOIS / DNS</button>
+    </form>
+
+    <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="type" value="photo">
+        <input type="file" name="photo" required>
+        <button type="submit">Анализ фото</button>
+    </form>
+
+    {% if data %}
+    <div class="result">
+        <h2>Результаты</h2>
+        {% if data.type == 'username' %}
+            <ul>{% for site, link in data.results.items() %}
+                <li>{{ site }}: {% if link %}<a href="{{ link }}" target="_blank">Найден</a>{% else %}❌{% endif %}</li>
+            {% endfor %}</ul>
+        {% elif data.type == 'email' %}
+            <p>Email: {{ data.email }}</p>
+            <p>Валиден: {{ "Да" if data.valid else "Нет" }}</p>
+        {% elif data.type == 'ip' %}
+            <ul>
+            {% for key, val in data.info.items() %}
+                <li>{{ key }}: {{ val }}</li>
+            {% endfor %}
+            </ul>
+        {% elif data.type == 'domain' %}
+            <p><strong>DNS:</strong> {{ data.dns }}</p>
+            <pre>{{ data.whois }}</pre>
+        {% elif data.type == 'photo' %}
+            <img src="{{ url_for('static', filename='uploads/' + data.filename) }}"><br>
+            {% if data.coords %}
+                <p>Координаты: {{ data.coords[0] }}, {{ data.coords[1] }}</p>
+                <a href="https://yandex.ru/maps/?ll={{ data.coords[1] }},{{ data.coords[0] }}&z=18" target="_blank">Открыть в Яндекс.Картах</a>
+            {% endif %}
+            <h3>EXIF:</h3>
+            <ul>
+                {% for key, val in data.exif.items() %}
+                    <li>{{ key }}: {{ val }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <br>
+        <a href="/download/{{ data.html_filename }}" download>⬇️ Скачать .html</a>
+        <br><br>
+        <button onclick="window.print()">🖨 Экспорт в PDF</button>
+    </div>
+    {% endif %}
+</body>
+</html>
